@@ -12,7 +12,7 @@
 [![Code Style: PEP 8](https://img.shields.io/badge/code%20style-PEP%208-blue)](https://peps.python.org/pep-0008/)
 [![PyPI Provenance](https://img.shields.io/badge/PyPI-With%20Provenance-blue?logo=pypi&logoColor=white)](https://pypi.org/project/django-octo-uml/#provenance)
 [![Snyk Vulnerabilities](https://img.shields.io/badge/Snyk%20Vulnerabilities-0%20known-brightgreen?logo=snyk&logoColor=white)](https://uml.snyk.io/package/pip/django-octo-uml)
-[![uml Audit](https://github.com/jeanpmodev/django_octo_uml/actions/workflows/uml.yml/badge.svg)](https://github.com/jeanpmodev/django_octo_uml/actions/workflows/uml.yml)
+[![security Audit](https://github.com/jeanpmodev/django_octo_uml/actions/workflows/security.yml/badge.svg)](https://github.com/jeanpmodev/django_octo_uml/actions/workflows/uml.yml)
 [![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/jeanpmodev/django_octo_uml/badge)](https://scorecard.dev/viewer/?uri=github.com/jeanpmodev/django_octo_uml)
 [![Socket Badge](https://badge.socket.dev/pypi/package/django-octo-uml/0.1.0?artifact_id=tar-gz)](https://badge.socket.dev/pypi/package/django-octo-uml/0.1.0?artifact_id=tar-gz)
 [![codecov](https://codecov.io/github/jeanpmodev/django_octo_uml/graph/badge.svg?token=YUOBIXZE9A)](https://codecov.io/github/jeanpmodev/django_octo_uml)
