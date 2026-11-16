@@ -14,12 +14,15 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Install system Graphviz
+        run: sudo apt-get update && sudo apt-get install -y graphviz
+
       - name: Setup Rye
         uses: eifinger/setup-rye@v4
         with:
           enable-cache: true
 
-      - name: Synchronize dependencies (including dev-dependencies)
+      - name: Synchronize dependencies
         run: |
           rye sync
           rye add --dev pytest-cov
@@ -29,7 +32,7 @@ jobs:
           PYTHONPATH: src
         run: rye run python manage.py migrate
 
-      - name: Execute Unit & Query-Count Suite (pytest)
+      - name: Execute Unit & Integration Suite (pytest)
         env:
           PYTHONPATH: src
         run: rye run pytest --cov=django_octo_uml --cov-report=xml
@@ -37,10 +40,13 @@ jobs:
       - name: Execute Behavioral Specifications (behave)
         env:
           PYTHONPATH: src
-        run: rye run behave
+        run: rye run python manage.py behave
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         with:
           files: ./coverage.xml
           token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: false
