@@ -1,0 +1,188 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+<style>
+  .octo-btn {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    height: 34px !important;
+    min-width: 155px;
+    padding: 0 14px !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    line-height: 1 !important;
+    box-sizing: border-box !important;
+    border-radius: 4px !important;
+    text-decoration: none !important;
+    cursor: pointer;
+    margin: 0 !important;
+  }
+  .octo-btn-sm {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    height: 26px !important;
+    min-width: 72px;
+    padding: 0 10px !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    line-height: 1 !important;
+    box-sizing: border-box !important;
+    border-radius: 4px !important;
+    text-decoration: none !important;
+    cursor: pointer;
+    margin: 0 !important;
+  }
+  .octo-btn-danger {
+    background: #ba2121 !important;
+    color: #ffffff !important;
+    border: none !important;
+  }
+  .octo-btn-danger:hover {
+    background: #a41515 !important;
+  }
+</style>
+
+<div id="content-main" style="padding: 10px 0;">
+  <div style="display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; align-items: center; margin-bottom: 16px; background: var(--darkened-bg, #f8f9fa); padding: 12px 16px; border-radius: 6px; border: 1px solid var(--border-color, #ddd);">
+    <div>
+      <strong>Snapshot #{{ active_snapshot.id }}</strong>
+      <span style="opacity: 0.8; font-size: 12px; margin-left: 8px;">
+        Generated on {{ active_snapshot.created_at|date:"Y-m-d H:i:s" }} |
+        {{ active_snapshot.apps_count }} apps, {{ active_snapshot.models_count }} models
+      </span>
+    </div>
+
+    <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+      <form method="post" style="margin: 0; display: inline-flex; gap: 8px;">
+        {% csrf_token %}
+        <input type="hidden" name="generate_uml" value="1">
+        <button type="submit" name="include_contrib" value="false" class="button octo-btn">
+          Generate (Project Apps)
+        </button>
+        <button type="submit" name="include_contrib" value="true" class="button octo-btn">
+          Generate (Include Core)
+        </button>
+      </form>
+
+      <a href="?snapshot={{ active_snapshot.id }}&download=dot" class="button octo-btn">Download .DOT</a>
+      <button type="button" id="btn-export-svg" class="button octo-btn">Export SVG</button>
+      <button type="button" id="btn-export-png" class="button default octo-btn">Export PNG</button>
+    </div>
+  </div>
+  <div id="uml-viewport" style="width: 100%; height: 64vh; border: 1px solid var(--border-color, #ccc); border-radius: 6px; background: #ffffff; overflow: auto; position: relative; cursor: grab; margin-bottom: 24px;">
+    {% if svg_markup %}
+      <div id="uml-stage" style="transform-origin: 0 0; display: inline-block; padding: 20px;">
+        {{ svg_markup|safe }}
+      </div>
+    {% else %}
+      <div style="padding: 24px; color: #ba2121;">
+        <strong>Graphviz binary (<code>dot</code>) not found on server.</strong>
+        <p>Install Graphviz (<code>sudo apt install graphviz</code>) to render SVG/PNG diagrams, or download the raw <code>.dot</code> file above.</p>
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="module" style="border: 1px solid var(--border-color, #ddd); border-radius: 6px; overflow: hidden;">
+    <h2 style="margin: 0; padding: 10px 14px; font-size: 13px;">Architecture Evolution History</h2>
+    <table style="width: 100%; border-collapse: collapse;">
+      <thead>
+        <tr>
+          <th style="padding: 10px 14px; text-align: left;">ID</th>
+          <th style="padding: 10px 14px; text-align: left;">Generated At</th>
+          <th style="padding: 10px 14px; text-align: left;">Scope</th>
+          <th style="padding: 10px 14px; text-align: left;">Apps</th>
+          <th style="padding: 10px 14px; text-align: left;">Models</th>
+          <th style="padding: 10px 14px; text-align: right;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in history %}
+          <tr style="{% if item.id == active_snapshot.id %}background: rgba(65, 118, 144, 0.12); font-weight: 600;{% endif %}">
+            <td style="padding: 8px 14px;">#{{ item.id }}</td>
+            <td style="padding: 8px 14px;">{{ item.created_at|date:"Y-m-d H:i:s" }}</td>
+            <td style="padding: 8px 14px;">{% if item.include_contrib %}Include Core Apps{% else %}Project Apps Only{% endif %}</td>
+            <td style="padding: 8px 14px;">{{ item.apps_count }}</td>
+            <td style="padding: 8px 14px;">{{ item.models_count }}</td>
+            <td style="padding: 8px 14px; text-align: right;">
+              <div style="display: inline-flex; gap: 6px; align-items: center;">
+                <a href="?snapshot={{ item.id }}" class="button octo-btn-sm">
+                  {% if item.id == active_snapshot.id %}Viewing{% else %}View{% endif %}
+                </a>
+                <form method="post" style="margin: 0;" onsubmit="return confirm('Delete UML snapshot #{{ item.id }}?');">
+                  {% csrf_token %}
+                  <button type="submit" name="delete_snapshot" value="{{ item.id }}" class="button octo-btn-sm octo-btn-danger">
+                    Delete
+                  </button>
+                </form>
+              </div>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const viewport = document.getElementById("uml-viewport");
+    const stage = document.getElementById("uml-stage");
+    const svg = viewport ? viewport.querySelector("svg") : null;
+    if (!svg || !stage) return;
+
+    let scale = 1;
+    viewport.addEventListener("wheel", (e) => {
+      e.preventDefault();
+      scale += e.deltaY < 0 ? 0.1 : -0.1;
+      scale = Math.min(Math.max(0.2, scale), 5);
+      stage.style.transform = `scale(${scale})`;
+    }, { passive: false });
+
+    document.getElementById("btn-export-svg").addEventListener("click", () => {
+      const serializer = new XMLSerializer();
+      const blob = new Blob([serializer.serializeToString(svg)], { type: "image/svg+xml;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "django_octo_uml_{{ active_snapshot.id }}.svg";
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    document.getElementById("btn-export-png").addEventListener("click", () => {
+      const bbox = svg.getBBox();
+      const width = Math.ceil(bbox.width + 40);
+      const height = Math.ceil(bbox.height + 40);
+      const clone = svg.cloneNode(true);
+      clone.setAttribute("width", width * 2);
+      clone.setAttribute("height", height * 2);
+
+      const serializer = new XMLSerializer();
+      const svgStr = serializer.serializeToString(clone);
+      const svgBase64 = "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(svgStr)));
+      const img = new Image();
+
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        canvas.width = width * 2;
+        canvas.height = height * 2;
+        const ctx = canvas.getContext("2d");
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+        canvas.toBlob((pngBlob) => {
+          const pngUrl = URL.createObjectURL(pngBlob);
+          const a = document.createElement("a");
+          a.href = pngUrl;
+          a.download = "django_octo_uml_{{ active_snapshot.id }}.png";
+          a.click();
+          URL.revokeObjectURL(pngUrl);
+        }, "image/png");
+      };
+      img.src = svgBase64;
+    });
+  });
+</script>
+{% endblock %}
