@@ -1,4 +1,9 @@
-# Django-Octo UML
+<p align="center">
+  <img src="https://raw.githubusercontent.com/jeanpmodev/jeanpmodev/main/assets/django-octo-uml.jpg" alt="Django-Octo-SEO" width="100%" />
+</p>
+
+# Django-Octo UML pypi library package
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow)](LICENSE)
 [![Python](https://img.shields.io/badge/Python-3.11+-blue)](https://python.org)
 [![Framework: Django](https://img.shields.io/badge/Framework-Django-darkgreen)](https://djangoproject.com)
