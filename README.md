@@ -22,6 +22,7 @@
 [![Socket Badge](https://badge.socket.dev/pypi/package/django-octo-uml/0.1.0?artifact_id=tar-gz)](https://badge.socket.dev/pypi/package/django-octo-uml/0.1.0?artifact_id=tar-gz)
 [![codecov](https://codecov.io/github/jeanpmodev/django_octo_uml/graph/badge.svg?token=YUOBIXZE9A)](https://codecov.io/github/jeanpmodev/django_octo_uml)
 [![Documentation Status](https://readthedocs.org/projects/django-octo/badge/?version=latest)](https://django-octo.readthedocs.io/en/latest/uml/)
+[![PyPkgScore](https://pypkgscore.onrender.com/badge/django_octo_aurora.svg)](https://pypkgscore.onrender.com/en/p/django_octo_aurora/)
 
 **Interactive runtime Django entity-relationship and UML architecture visualizer under the Django-Octo ecosystem.**
 
