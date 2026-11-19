@@ -18,8 +18,10 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com"
-Repository = "https://github.com"
+Homepage = "https://github.com/jeanpmodev/django_octo_uml"
+Documentation = "https://django-octo.readthedocs.io/en/latest/uml/"
+Repository = "https://github.com/jeanpmodev/django_octo_uml"
+Issues = "https://github.com/jeanpmodev/django_octo_uml/issues"
 
 [tool.rye]
 managed = true
